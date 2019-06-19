@@ -21,12 +21,7 @@ function Import-MdtConfig
 
     $script:cfg = Import-PowerShellDataFile $ConfigFile
 
-    if ($cfg.TsqlCheckerPath.StartsWith('.'))
-    {
-        $script:cfg.TsqlCheckerPath = Join-Path $pwd $cfg.TsqlCheckerPath
-    }
-
-    if (-not $([System.IO.File]::Exists($cfg.TsqlCheckerPath)))
+    if (-not $(Test-Path $cfg.TsqlCheckerPath -PathType Leaf))
     {
         Write-Host -ForegroundColor Red "T-SQL checker does not exists in specified path:"
         Write-Host -ForegroundColor Yellow $cfg.TsqlCheckerPath
@@ -815,7 +810,7 @@ function Remove-StudentOutFiles
 
 #______________________________________________________________________________
 
-if ([System.IO.File]::Exists($(Join-Path $pwd $default_config_file)))
+if ($(Test-Path $default_config_file -PathType Leaf))
 {
     Write-Host "Loading default config from $default_config_file ..."
     Import-MdtConfig
