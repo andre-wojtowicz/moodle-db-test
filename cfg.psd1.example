@@ -1,12 +1,18 @@
-    @{
-        TsqlCheckerPath = ".\tsql-checker\tsql-checker.exe"  # relative or absolute path
-        TestsRootDir    = ".\tests"
-        Sqlcmd = @{
-            Server            = ''
-            AuthMethod        = '' # 'windowsauth' or 'server', currently not used
-            User              = ''
-            Password          = ''
-            ConnectionTimeout = 5
-            QueryTimeout      = 5
-        }
+@{
+    TsqlCheckerPath = ".\tsql-checker\tsql-checker.exe"  # relative or absolute path
+    TestsRootDir    = ".\tests"
+    Sqlcmd = @{
+        Server            = ''
+        AuthMethod        = '' # 'windowsauth' or 'server', currently not used
+        User              = ''
+        Password          = ''
+        ConnectionTimeout = 5
+        QueryTimeout      = 5
     }
+    MoodleCsv = @{
+        IdName     = 0
+        IdSurname  = 1
+        IdPoints   = 6
+        IdComments = 7
+    }
+}

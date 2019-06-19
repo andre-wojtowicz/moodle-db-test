@@ -12,7 +12,7 @@ $default_config_file = "cfg.psd1"
 
 #______________________________________________________________________________
 
-function Import-SqlServerConfig
+function Import-MdtConfig
 {
     param
     (
@@ -33,7 +33,7 @@ function Import-SqlServerConfig
     }
 }
 
-function Get-SqlServerConfig
+function Get-MdtConfig
 {
     $cfg
 }
@@ -502,10 +502,10 @@ function Get-StudentGrades
         }
         
         $students_list = @()
-        $csv_col_0 = $csv_to_fill[0].psobject.properties.name[0] # name
-        $csv_col_1 = $csv_to_fill[0].psobject.properties.name[1] # surname
-        $csv_col_6 = $csv_to_fill[0].psobject.properties.name[6] # points
-        $csv_col_7 = $csv_to_fill[0].psobject.properties.name[7] # comments
+        $csv_col_name     = $csv_to_fill[0].psobject.properties.name[$cfg.MoodleCsv.IdName]
+        $csv_col_surname  = $csv_to_fill[0].psobject.properties.name[$cfg.MoodleCsv.IdSurname]
+        $csv_col_points   = $csv_to_fill[0].psobject.properties.name[$cfg.MoodleCsv.IdPoints]
+        $csv_col_comments = $csv_to_fill[0].psobject.properties.name[$cfg.MoodleCsv.IdComments]
 
         ForEach ($student_dir in $students_dirs)
         {
@@ -686,7 +686,7 @@ function Get-StudentGrades
              
              $students_list += $student_n_list[0] + " " + $student_n_list[1]
 
-             $rid = $csv_to_fill.IndexOf($($csv_to_fill | ? {$_."$csv_col_0" -eq $student_n_list[0] -and $_."$csv_col_1" -eq $student_n_list[1]}))
+             $rid = $csv_to_fill.IndexOf($($csv_to_fill | ? {$_."$csv_col_name" -eq $student_n_list[0] -and $_."$csv_col_surname" -eq $student_n_list[1]}))
 
              if ($rid -lt 0)
              {
@@ -694,13 +694,13 @@ function Get-StudentGrades
                 return 1
              }
 
-             $csv_to_fill[$rid]."$csv_col_6" = $points
-             $csv_to_fill[$rid]."$csv_col_7" = $comment
+             $csv_to_fill[$rid]."$csv_col_points"   = $points
+             $csv_to_fill[$rid]."$csv_col_comments" = $comment
          }
          
          if ($SaveOnlyEvaluatedStudents -eq $true)
          {
-            $csv_to_fill = $csv_to_fill | Where-Object {$students_list.Contains($_."$csv_col_0" + " " + $_."$csv_col_1")}
+            $csv_to_fill = $csv_to_fill | Where-Object {$students_list.Contains($_."$csv_col_name" + " " + $_."$csv_col_surname")}
          }
 
 
@@ -817,13 +817,13 @@ function Remove-StudentOutFiles
 
 if ([System.IO.File]::Exists($(Join-Path $pwd $default_config_file)))
 {
-    Write-Host "Loading default SQL Server config from $default_config_file ..."
-    Import-SqlServerConfig
+    Write-Host "Loading default config from $default_config_file ..."
+    Import-MdtConfig
 }
 
 #______________________________________________________________________________
 
-Export-ModuleMember -Function Import-SqlServerConfig, Get-SqlServerConfig, 
+Export-ModuleMember -Function Import-MdtConfig, Get-MdtConfig, 
                               Test-SqlConnection, Get-ModelSqlTokensAndGrammar,
                               Get-ModelSqlOutput, Test-StudentSqlSanity,
                               Get-StudentSqlOutFiles, Get-StudentGrades,
