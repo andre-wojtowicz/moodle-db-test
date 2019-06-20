@@ -1,3 +1,13 @@
-cfg.psd1
+config.psd1
 tsql-checker/
-tests/
+
+grades.csv
+*.grammar
+*.tokens
+*.sql_output
+*.sql_output_ps
+*.sql_errors
+*.multiple_sql
+*.parse_errors
+*.security_check
+*.tsqlchecker

@@ -8,7 +8,7 @@ if ($(Get-Module -ListAvailable -Name SqlServer) -eq $null)
 
 $cfg = $null
 
-$default_config_file = "cfg.psd1"
+$default_config_file = "config.psd1"
 
 #______________________________________________________________________________
 
@@ -666,7 +666,9 @@ function Get-StudentGrades
                         $fe_flag = $false
                         ForEach ($word in $words_raw.Split(','))
                         {
-                            if (-not $student_tokens.Contains($word))
+                            $sm = Select-String -InputObject $student_tokens -Pattern "$word" -AllMatches
+                        
+                            if ($sm.Matches.Count -eq 0)
                             {
                                 $comment += "[0] missing SQL word: $word<br>"
                             
