@@ -480,7 +480,7 @@ function Get-StudentGrades
         Write-Host -ForegroundColor Yellow $dir.Name
         
         $csv_to_fill_path = Join-Path $dir.FullName "*-comma_separated.csv"
-        $csv_to_fill = Import-Csv -Delimiter ',' -ErrorAction SilentlyContinue $csv_to_fill_path
+        $csv_to_fill = Import-Csv -Delimiter $cfg.MoodleCsv.Delimiter -ErrorAction SilentlyContinue $csv_to_fill_path
         
         if ($csv_to_fill -eq $null)
         {
@@ -714,12 +714,12 @@ function Get-StudentGrades
          
         if ($PSVersionTable.PSVersion.Major -ge 6)
         {
-            $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8NoBOM" -Delimiter ',' -Path $csv_path -Force
+            $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8NoBOM" -Delimiter $cfg.MoodleCsv.Delimiter -Path $csv_path -Force
         }
         else
         {
             
-            $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8" -Delimiter ',' -Path $csv_path -NoTypeInformation -Force
+            $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8" -Delimiter $cfg.MoodleCsv.Delimiter -Path $csv_path -NoTypeInformation -Force
             $csv_content = Get-Content $csv_path
             [System.IO.File]::WriteAllLines($csv_path, $csv_content) # convert to UTF8 without BOM
         }

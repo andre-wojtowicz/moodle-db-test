@@ -10,6 +10,7 @@
         QueryTimeout      = 5
     }
     MoodleCsv = @{
+        Delimiter  = ','
         IdName     = 0
         IdSurname  = 1
         IdPoints   = 6
