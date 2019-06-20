@@ -2,10 +2,10 @@
     TsqlCheckerPath = ".\tsql-checker\tsql-checker.exe"  # relative or absolute path
     TestsRootDir    = ".\tests"
     Sqlcmd = @{
-        Server            = ''
-        AuthMethod        = '' # 'windowsauth' or 'server', currently not used
-        User              = ''
-        Password          = ''
+        Server            = 'localhost'
+        WindowsAuth       = $false
+        User              = 'sa'
+        Password          = 'P@s$w0rd'
         ConnectionTimeout = 5
         QueryTimeout      = 5
     }

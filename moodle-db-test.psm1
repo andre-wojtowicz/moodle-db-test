@@ -37,13 +37,22 @@ function Test-SqlConnection
 {
     try
     {
-        Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
-                      -UserName          $cfg.Sqlcmd.User `
-                      -Password          $cfg.Sqlcmd.Password `
-                      -Query             " " `
-                      -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
-                      -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
-                      -ErrorAction       Stop
+        if ($cfg.Sqlcmd.WindowsAuth)
+        {
+            Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
+                          -Query             " " `
+                          -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
+                          -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
+                          -ErrorAction       Stop
+        } else {
+            Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
+                          -UserName          $cfg.Sqlcmd.User `
+                          -Password          $cfg.Sqlcmd.Password `
+                          -Query             " " `
+                          -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
+                          -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
+                          -ErrorAction       Stop
+        }
 
         Write-Host -ForegroundColor Green Success
     } catch { 
@@ -133,17 +142,30 @@ function Get-ModelSqlOutput
 
             try
             {
-                $p = Invoke-Sqlcmd -ServerInstance        $cfg.Sqlcmd.Server `
-                                    -UserName             $cfg.Sqlcmd.User `
-                                    -Database             $db_name `
-                                    -Password             $cfg.Sqlcmd.Password `
-                                    -InputFile            $sql.FullName `
-                                    -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
-                                    -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
-                                    -IncludeSqlUserErrors `
-                                    -ErrorAction          Stop `
-                                    -DisableCommands `
-                                    -DisableVariables
+                $p = if ($cfg.Sqlcmd.WindowsAuth)
+                     {
+                        Invoke-Sqlcmd -ServerInstance       $cfg.Sqlcmd.Server `
+                                      -Database             $db_name `
+                                      -InputFile            $sql.FullName `
+                                      -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
+                                      -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
+                                      -IncludeSqlUserErrors `
+                                      -ErrorAction          Stop `
+                                      -DisableCommands `
+                                      -DisableVariables
+                     } else {
+                        Invoke-Sqlcmd -ServerInstance       $cfg.Sqlcmd.Server `
+                                      -UserName             $cfg.Sqlcmd.User `
+                                      -Password             $cfg.Sqlcmd.Password `
+                                      -Database             $db_name `
+                                      -InputFile            $sql.FullName `
+                                      -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
+                                      -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
+                                      -IncludeSqlUserErrors `
+                                      -ErrorAction          Stop `
+                                      -DisableCommands `
+                                      -DisableVariables
+                     }
 
                 $p | Format-Table | Out-File -Encoding utf8 "$($file_full_name_no_ext).sql_output"
                 $p | Export-CliXml "$($file_full_name_no_ext).sql_output_ps"
@@ -313,16 +335,28 @@ function Get-StudentSqlOutFiles
                 
                 try
                 {
-                    Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
-                                  -UserName          $cfg.Sqlcmd.User `
-                                  -Database          $db_name `
-                                  -Password          $cfg.Sqlcmd.Password `
-                                  -Query             $parse_query `
-                                  -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
-                                  -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
-                                  -ErrorAction       Stop `
-                                  -DisableCommands `
-                                  -DisableVariables
+                    if ($cfg.Sqlcmd.WindowsAuth)
+                    {
+                        Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
+                                      -Database          $db_name `
+                                      -Query             $parse_query `
+                                      -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
+                                      -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
+                                      -ErrorAction       Stop `
+                                      -DisableCommands `
+                                      -DisableVariables
+                    } else {
+                        Invoke-Sqlcmd -ServerInstance    $cfg.Sqlcmd.Server `
+                                      -UserName          $cfg.Sqlcmd.User `
+                                      -Password          $cfg.Sqlcmd.Password `
+                                      -Database          $db_name `
+                                      -Query             $parse_query `
+                                      -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
+                                      -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
+                                      -ErrorAction       Stop `
+                                      -DisableCommands `
+                                      -DisableVariables
+                    }
                 }
                 catch
                 { 
@@ -424,17 +458,30 @@ function Get-StudentSqlOutFiles
                 
                 try
                 {
-                    $p = Invoke-Sqlcmd -ServerInstance       $cfg.Sqlcmd.Server `
-                                       -UserName             $cfg.Sqlcmd.User `
-                                       -Database             $db_name `
-                                       -Password             $cfg.Sqlcmd.Password `
-                                       -InputFile            $sql_file_full_path `
-                                       -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
-                                       -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
-                                       -IncludeSqlUserErrors `
-                                       -ErrorAction          Stop `
-                                       -DisableCommands `
-                                       -DisableVariables
+                    $p = if ($cfg.Sqlcmd.WindowsAuth)
+                         {
+                            Invoke-Sqlcmd -ServerInstance       $cfg.Sqlcmd.Server `
+                                          -Database             $db_name `
+                                          -InputFile            $sql_file_full_path `
+                                          -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
+                                          -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
+                                          -IncludeSqlUserErrors `
+                                          -ErrorAction          Stop `
+                                          -DisableCommands `
+                                          -DisableVariables
+                         } else {
+                            Invoke-Sqlcmd -ServerInstance       $cfg.Sqlcmd.Server `
+                                          -UserName             $cfg.Sqlcmd.User `
+                                          -Password             $cfg.Sqlcmd.Password `
+                                          -Database             $db_name `
+                                          -InputFile            $sql_file_full_path `
+                                          -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
+                                          -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
+                                          -IncludeSqlUserErrors `
+                                          -ErrorAction          Stop `
+                                          -DisableCommands `
+                                          -DisableVariables
+                         }
 
                     $p | Format-Table | Out-File -Encoding utf8 "$($sql_file_full_path_no_ext).sql_output"
                     $p | Export-CliXml "$($sql_file_full_path_no_ext).sql_output_ps"
