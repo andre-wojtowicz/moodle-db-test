@@ -129,7 +129,7 @@ function Get-ModelSqlOutput
         
         ForEach ($sql in $sqls)
         {
-            $file_full_name_no_ext = Join-Path $dir.FullName [IO.Path]::GetFileNameWithoutExtension($sql.Name)
+            $file_full_name_no_ext = Join-Path $dir.FullName $([IO.Path]::GetFileNameWithoutExtension($sql.Name))
 
             try
             {
@@ -141,8 +141,8 @@ function Get-ModelSqlOutput
                                     -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
                                     -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
                                     -IncludeSqlUserErrors `
-                                    -ErrorAction          Stop
-                                    -DisableCommands
+                                    -ErrorAction          Stop `
+                                    -DisableCommands `
                                     -DisableVariables
 
                 $p | Format-Table | Out-File -Encoding utf8 "$($file_full_name_no_ext).sql_output"
@@ -304,7 +304,7 @@ function Get-StudentSqlOutFiles
             ForEach($sql_file in $cmp)
             {
                 $sql_file_full_path = Join-Path $student_dir.FullName $sql_file
-                $sql_file_full_path_no_ext = Join-Path $student_dir.FullName [IO.Path]::GetFileNameWithoutExtension($sql_file)
+                $sql_file_full_path_no_ext = Join-Path $student_dir.FullName $([IO.Path]::GetFileNameWithoutExtension($sql_file))
             
                 # parse
                 
@@ -320,8 +320,8 @@ function Get-StudentSqlOutFiles
                                   -Query             $parse_query `
                                   -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
                                   -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
-                                  -ErrorAction       Stop
-                                  -DisableCommands
+                                  -ErrorAction       Stop `
+                                  -DisableCommands `
                                   -DisableVariables
                 }
                 catch
@@ -432,8 +432,8 @@ function Get-StudentSqlOutFiles
                                        -ConnectionTimeout    $cfg.Sqlcmd.ConnectionTimeout `
                                        -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
                                        -IncludeSqlUserErrors `
-                                       -ErrorAction          Stop
-                                       -DisableCommands
+                                       -ErrorAction          Stop `
+                                       -DisableCommands `
                                        -DisableVariables
 
                     $p | Format-Table | Out-File -Encoding utf8 "$($sql_file_full_path_no_ext).sql_output"
@@ -458,7 +458,7 @@ function Get-StudentGrades
         [string] $TestDirPattern = ".*",
         [string] $StudentDirPattern = ".*",
         [bool]   $SaveOnlyEvaluatedStudents = $true,
-        [int]    $MaxPoints = $null
+        [int]    $MaxPoints = 0
     )
     
     $dirs = Get-ChildItem -Directory -ErrorAction SilentlyContinue $cfg.TestsRootDir |`
@@ -667,62 +667,62 @@ function Get-StudentGrades
                 {
                     $comment += "[0] no SQL file<br>"
                 }
-             }
+            }
          
-             $comment = $comment.Substring(0, $comment.Length - 4)
+            $comment = $comment.Substring(0, $comment.Length - 4)
 
-             Write-Host -ForegroundColor Cyan $comment.Replace("<br>", "`n")
+            Write-Host -ForegroundColor Cyan $comment.Replace("<br>", "`n")
              
-             if ($MaxPoints -ne $null -and $points -gt $MaxPoints)
-             {
+            if ($MaxPoints -ne 0 -and $points -gt $MaxPoints)
+            {
                 Write-Host -ForegroundColor Cyan "Points: $MaxPoints ($points)"
                 $points = $MaxPoints
-             }
-             else
-             {
+            }
+            else
+            {
                 Write-Host -ForegroundColor Cyan "Points: $points"
-             }
+            }
 
-             $student_n_list = $student_dir.Name.Split('_')[0].Split(' ')
+            $student_n_list = $student_dir.Name.Split('_')[0].Split(' ')
              
-             $students_list += $student_n_list[0] + " " + $student_n_list[1]
+            $students_list += $student_n_list[0] + " " + $student_n_list[1]
 
-             $rid = $csv_to_fill.IndexOf($($csv_to_fill | ? {$_."$csv_col_name" -eq $student_n_list[0] -and $_."$csv_col_surname" -eq $student_n_list[1]}))
+            $rid = $csv_to_fill.IndexOf($($csv_to_fill | ? {$_."$csv_col_name" -eq $student_n_list[0] -and $_."$csv_col_surname" -eq $student_n_list[1]}))
 
-             if ($rid -lt 0)
-             {
+            if ($rid -lt 0)
+            {
                 Write-Host -ForegroundColor Red "Unable to find unique record of $($student_n_list[0]) $($student_n_list[1]) in CSV file"
                 return 1
-             }
+            }
 
-             $csv_to_fill[$rid]."$csv_col_points"   = $points
-             $csv_to_fill[$rid]."$csv_col_comments" = $comment
-         }
+            $csv_to_fill[$rid]."$csv_col_points"   = $points
+            $csv_to_fill[$rid]."$csv_col_comments" = $comment
+        }
          
-         if ($SaveOnlyEvaluatedStudents -eq $true)
-         {
+        if ($SaveOnlyEvaluatedStudents -eq $true)
+        {
             $csv_to_fill = $csv_to_fill | Where-Object {$students_list.Contains($_."$csv_col_name" + " " + $_."$csv_col_surname")}
-         }
+        }
 
 
-         $csv_path = Join-Path $dir.FullName "grades.csv"
+        $csv_path = Join-Path $dir.FullName "grades.csv"
 
-         $_dsep_ = [IO.Path]::DirectorySeparatorChar
-         $csv_short_path += ($csv_path.Split($_dsep_) | Select-Object -Last 2) -Join $_dsep_
+        $_dsep_ = [IO.Path]::DirectorySeparatorChar
+        $csv_short_path += ($csv_path.Split($_dsep_) | Select-Object -Last 2) -Join $_dsep_
          
-         Write-Host -ForegroundColor Yellow "Saving grades in $csv_short_path ..."
+        Write-Host -ForegroundColor Yellow "Saving grades in $csv_short_path ..."
          
-         if ($PSVersionTable.PSVersion.Major -ge 6)
-         {
+        if ($PSVersionTable.PSVersion.Major -ge 6)
+        {
             $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8NoBOM" -Delimiter ',' -Path $csv_path -Force
-         }
-         else
-         {
+        }
+        else
+        {
             
             $csv_to_fill | Select-Object * | Export-Csv  -Encoding "utf8" -Delimiter ',' -Path $csv_path -NoTypeInformation -Force
             $csv_content = Get-Content $csv_path
             [System.IO.File]::WriteAllLines($csv_path, $csv_content) # convert to UTF8 without BOM
-         }
+        }
     }
 }
 
