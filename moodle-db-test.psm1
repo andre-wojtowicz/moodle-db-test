@@ -142,6 +142,8 @@ function Get-ModelSqlOutput
                                     -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
                                     -IncludeSqlUserErrors `
                                     -ErrorAction          Stop
+                                    -DisableCommands
+                                    -DisableVariables
 
                 $p | Format-Table | Out-File -Encoding utf8 "$($file_full_name_no_ext).sql_output"
                 $p | Export-CliXml "$($file_full_name_no_ext).sql_output_ps"
@@ -319,6 +321,8 @@ function Get-StudentSqlOutFiles
                                   -ConnectionTimeout $cfg.Sqlcmd.ConnectionTimeout `
                                   -QueryTimeout      $cfg.Sqlcmd.QueryTimeout `
                                   -ErrorAction       Stop
+                                  -DisableCommands
+                                  -DisableVariables
                 }
                 catch
                 { 
@@ -378,12 +382,12 @@ function Get-StudentSqlOutFiles
                 $security_check_full_path = "$($sql_file_full_path_no_ext).security_check"
                 
                 $sec_grammar = @("ddl_clause", "cfl_statement", "dbcc_clause", "empty_statement",
-                                 "another_statement", "backup_statement", "execute_statement")
+                                 "another_statement", "backup_statement", "execute_statement", "execute_body")
                       
                 $fe_flag = $false
                 ForEach($patt in $sec_grammar)
                 {
-                    $sm = Select-String -InputObject $(gc "$($sql_file_full_path_no_ext).grammar") -Pattern "$patt " -AllMatches
+                    $sm = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).grammar") -Pattern "$patt " -AllMatches
                     
                     if ($sm.Matches.Count -gt 0)
                     {
@@ -397,12 +401,12 @@ function Get-StudentSqlOutFiles
                     continue
                 }
 
-                $sec_tokens = @("INTO", "REVOKE", "DENY")
+                $sec_tokens = @("INTO", "GRANT", "REVOKE", "DENY")
                 
                 $fe_flag = $false
                 ForEach($patt in $sec_tokens)
                 {
-                    $sm = Select-String -InputObject $(gc "$($sql_file_full_path_no_ext).tokens") -Pattern "$patt " -AllMatches
+                    $sm = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).tokens") -Pattern "$patt " -AllMatches
                     
                     if ($sm.Matches.Count -gt 0)
                     {
@@ -429,6 +433,8 @@ function Get-StudentSqlOutFiles
                                        -QueryTimeout         $cfg.Sqlcmd.QueryTimeout `
                                        -IncludeSqlUserErrors `
                                        -ErrorAction          Stop
+                                       -DisableCommands
+                                       -DisableVariables
 
                     $p | Format-Table | Out-File -Encoding utf8 "$($sql_file_full_path_no_ext).sql_output"
                     $p | Export-CliXml "$($sql_file_full_path_no_ext).sql_output_ps"
