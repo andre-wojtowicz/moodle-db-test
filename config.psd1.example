@@ -1,5 +1,5 @@
 @{
-    TsqlCheckerPath = ".\tsql-checker\tsql-checker.exe"  # relative or absolute path
+    TsqlCheckerPath = ".\tsql-checker.exe"
     TestsRootDir    = ".\tests"
     Sqlcmd = @{
         Server            = 'localhost'

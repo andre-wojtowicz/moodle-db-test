@@ -33,7 +33,7 @@ function Get-MdtConfig
     $cfg
 }
 
-function Test-SqlConnection
+function Test-MdtSqlConnection
 {
     try
     {
@@ -60,51 +60,7 @@ function Test-SqlConnection
     }
 }
 
-function Get-ModelSqlTokensAndGrammar
-{
-    param
-    (
-        [string] $TestDirPattern = ".*"
-    )
-    
-    $dirs = Get-ChildItem -Directory -ErrorAction SilentlyContinue $cfg.TestsRootDir |`
-            Where-Object {$_.Name -match "$TestDirPattern"}
-    
-    if ($dirs -eq $null)
-    {
-        Write-Host -ForegroundColor Green "No directories matched"
-        return
-    }
-    
-    Write-Host -ForegroundColor Green "Directories matched:"
-    Write-Host -Separator "`n" $dirs.Name
-    
-    
-    Write-Host -ForegroundColor Green "Processing:"
-    ForEach ($dir in $dirs)
-    {
-        Write-Host -ForegroundColor Yellow $dir.Name
-        
-        $sqls = Get-ChildItem -File $(Join-Path $dir.FullName "*.sql")
-        
-        ForEach ($sql in $sqls)
-        {
-            & $cfg.TsqlCheckerPath $sql.FullName
-            
-            if ($LastExitCode -eq 0)
-            {
-                Write-Host -ForegroundColor Gray $sql.Name
-            } 
-            else
-            {
-                Write-Host -ForegroundColor Red $sql.Name
-                return 1
-            }
-        }
-    }
-}
-
-function Get-ModelSqlOutput
+function Get-ModelOutput
 {
     param
     (
@@ -138,6 +94,15 @@ function Get-ModelSqlOutput
         
         ForEach ($sql in $sqls)
         {
+            & $cfg.TsqlCheckerPath $sql.FullName
+            
+            if ($LastExitCode -ne 0)
+            {
+                Write-Host -ForegroundColor Red "$(sql.Name) finished with errors:"
+                Write-Host -ForegroundColor Red "tsql-checker crashed"
+                return
+            }
+        
             $file_full_name_no_ext = Join-Path $dir.FullName $([IO.Path]::GetFileNameWithoutExtension($sql.Name))
 
             try
@@ -176,15 +141,15 @@ function Get-ModelSqlOutput
             { 
                 $_.Exception.Message | Out-File -Encoding utf8 "$($file_full_name_no_ext).sql_errors"
             
-                Write-Host -ForegroundColor Red $file.Name finished with errors
+                Write-Host -ForegroundColor Red "$(sql.Name) finished with errors:"
                 Write-Host -ForegroundColor Red $_.Exception.Message
-                return 1
+                return
             }
         }
     }
 }
 
-function Test-StudentSqlSanity
+function Test-StudentSanity
 {
     param
     (
@@ -255,7 +220,6 @@ function Test-StudentSqlSanity
     {
         Write-Host -ForegroundColor Cyan "Directories to check:"
         Write-Host -ForegroundColor Red -Separator "`n" $dirs_to_check
-        return 1
     }
     else
     {
@@ -263,7 +227,7 @@ function Test-StudentSqlSanity
     }   
 }
 
-function Get-StudentSqlOutFiles
+function Get-StudentOutput
 {    
     param
     (
@@ -384,7 +348,7 @@ function Get-StudentSqlOutFiles
                 if ($LastExitCode -ne 0)
                 {
                     Write-Host -ForegroundColor Red "$sql_file crashed T-SQL checker"
-                    return 1
+                    return
                 }
                 
                 if ((Get-Content $tsqlchecker_full_path).Length -eq 0)
@@ -498,7 +462,7 @@ function Get-StudentSqlOutFiles
     }
 }
 
-function Get-StudentGrades
+function Get-Grades
 {
     param
     (
@@ -532,7 +496,7 @@ function Get-StudentGrades
         if ($csv_to_fill -eq $null)
         {
             Write-Host -ForegroundColor Red "Unable to read CSV file to fill: $csv_to_fill_path"
-            return 1
+            return
         }
         
         $test_cfg = Import-PowerShellDataFile $(Join-Path $dir.FullName cfg.psd1)
@@ -741,7 +705,7 @@ function Get-StudentGrades
             if ($rid -lt 0)
             {
                 Write-Host -ForegroundColor Red "Unable to find unique record of $($student_n_list[0]) $($student_n_list[1]) in CSV file"
-                return 1
+                return
             }
 
             $csv_to_fill[$rid]."$csv_col_points"   = $points
@@ -757,7 +721,7 @@ function Get-StudentGrades
         $csv_path = Join-Path $dir.FullName "grades.csv"
 
         $_dsep_ = [IO.Path]::DirectorySeparatorChar
-        $csv_short_path += ($csv_path.Split($_dsep_) | Select-Object -Last 2) -Join $_dsep_
+        $csv_short_path = ($csv_path.Split($_dsep_) | Select-Object -Last 2) -Join $_dsep_
          
         Write-Host -ForegroundColor Yellow "Saving grades in $csv_short_path ..."
          
@@ -775,7 +739,7 @@ function Get-StudentGrades
     }
 }
 
-function Remove-ModelOutFiles
+function Remove-ModelOutput
 {
     param
     (
@@ -811,7 +775,7 @@ function Remove-ModelOutFiles
     }
 }
 
-function Remove-StudentOutFiles
+function Remove-StudentOutput
 {
     param
     (
@@ -863,6 +827,38 @@ function Remove-StudentOutFiles
     }
 }
 
+function Remove-Grades
+{
+    param
+    (
+        [string] $TestDirPattern = ".*"
+    )
+    
+    $dirs = Get-ChildItem -Directory -ErrorAction SilentlyContinue $cfg.TestsRootDir |`
+            Where-Object {$_.Name -match "$TestDirPattern"}
+    
+    if ($dirs -eq $null)
+    {
+        Write-Host -ForegroundColor Green "No directories matched"
+        return
+    }
+    
+    Write-Host -ForegroundColor Green "Directories matched:"
+    Write-Host -Separator "`n" $dirs.Name
+    
+    
+    Write-Host -ForegroundColor Green "Processing:"
+    ForEach ($dir in $dirs)
+    {
+        Write-Host -ForegroundColor Yellow $dir.Name
+
+        $file = Join-Path $dir.FullName "grades.csv"
+        
+        Remove-Item $file -Force -ErrorAction SilentlyContinue
+        Write-Host -ForegroundColor Gray "grades.csv"
+    }
+}
+
 #______________________________________________________________________________
 
 if ($(Test-Path $default_config_file -PathType Leaf))
@@ -873,8 +869,7 @@ if ($(Test-Path $default_config_file -PathType Leaf))
 
 #______________________________________________________________________________
 
-Export-ModuleMember -Function Import-MdtConfig, Get-MdtConfig, 
-                              Test-SqlConnection, Get-ModelSqlTokensAndGrammar,
-                              Get-ModelSqlOutput, Test-StudentSqlSanity,
-                              Get-StudentSqlOutFiles, Get-StudentGrades,
-                              Remove-ModelOutFiles, Remove-StudentOutFiles
+Export-ModuleMember -Function Import-MdtConfig, Get-MdtConfig, `
+                              Test-MdtSqlConnection, Test-StudentSanity, `
+                              Get-ModelOutput, Get-StudentOutput, Get-Grades, `
+                              Remove-ModelOutput, Remove-StudentOutput, Remove-Grades `

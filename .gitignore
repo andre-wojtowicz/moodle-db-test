@@ -1,5 +1,6 @@
 config.psd1
-tsql-checker/
+tsql-checker.bin
+tsql-checker.exe
 
 grades.csv
 *.grammar
