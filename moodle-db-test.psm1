@@ -10,6 +10,8 @@ $cfg = $null
 
 $default_config_file = "config.psd1"
 
+$Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
+
 #______________________________________________________________________________
 
 function Import-MdtConfig
@@ -94,6 +96,7 @@ function Get-ModelOutput
         
         ForEach ($sql in $sqls)
         {
+            [System.IO.File]::WriteAllLines($sql.FullName, $(Get-Content $sql.FullName), $Utf8NoBomEncoding)
             $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath -WorkingDirectory $dir.FullName -ArgumentList $sql.Name -PassThru
             
             if ($pt.ExitCode -ne 0)
@@ -342,6 +345,8 @@ function Get-StudentOutput
                 {
                     $utf8encoding = "utf8"
                 }
+                
+                [System.IO.File]::WriteAllLines($sql_file_full_path, $(Get-Content $sql_file_full_path), $Utf8NoBomEncoding)
 
                 $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath `
                                     -WorkingDirectory $student_dir.FullName -ArgumentList $sql_file `
