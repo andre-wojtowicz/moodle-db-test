@@ -869,7 +869,8 @@ if ($(Test-Path $default_config_file -PathType Leaf))
 
 #______________________________________________________________________________
 
-Export-ModuleMember -Function Import-MdtConfig, Get-MdtConfig, `
-                              Test-MdtSqlConnection, Test-StudentSanity, `
-                              Get-ModelOutput, Get-StudentOutput, Get-Grades, `
-                              Remove-ModelOutput, Remove-StudentOutput, Remove-Grades `
+Export-ModuleMember -Function `
+    Import-MdtConfig, Get-MdtConfig, `
+    Test-MdtSqlConnection, Test-StudentSanity, `
+    Get-ModelOutput, Get-StudentOutput, Get-Grades, `
+    Remove-ModelOutput, Remove-StudentOutput, Remove-Grades
