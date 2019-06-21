@@ -96,8 +96,12 @@ function Get-ModelOutput
         
         ForEach ($sql in $sqls)
         {
+            Copy-Item $sql.FullName "$($sql.FullName).orig"
             [System.IO.File]::WriteAllLines($sql.FullName, $(Get-Content $sql.FullName), $Utf8NoBomEncoding)
+            
             $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath -WorkingDirectory $dir.FullName -ArgumentList $sql.Name -PassThru
+            
+            Move-Item "$($sql.FullName).orig" $sql.FullName -Force
             
             if ($pt.ExitCode -ne 0)
             {
@@ -346,11 +350,14 @@ function Get-StudentOutput
                     $utf8encoding = "utf8"
                 }
                 
+                Copy-Item $sql_file_full_path "$($sql_file_full_path).orig"
                 [System.IO.File]::WriteAllLines($sql_file_full_path, $(Get-Content $sql_file_full_path), $Utf8NoBomEncoding)
 
                 $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath `
                                     -WorkingDirectory $student_dir.FullName -ArgumentList $sql_file `
                                     -RedirectStandardError $tsqlchecker_full_path -PassThru
+                                    
+                Move-Item "$($sql_file_full_path).orig" $sql_file_full_path -Force
             
                 if ($pt.ExitCode -ne 0)
                 {
@@ -772,7 +779,7 @@ function Remove-ModelOutput
         Write-Host -ForegroundColor Yellow $dir.Name
 
         $files = Get-ChildItem -Path $(Join-Path $dir.FullName "*") -File `
-                 -Include ('*.grammar', '*.tokens', '*.sql_output', '*.sql_output_ps')
+                 -Include ('*.grammar', '*.tokens', '*.sql_output', '*.sql_output_ps', '*.orig')
         
         ForEach ($file in $files)
         {
@@ -823,7 +830,7 @@ function Remove-StudentOutput
         
             $files = Get-ChildItem -Path $(Join-Path $student_dir.FullName "*") -File -Include `
                      ('*.grammar', '*.tokens', '*.sql_output', '*.sql_output_ps', '*.sql_errors', `
-                      '*.multiple_sql', '*.parse_errors', '*.security_check', '*.tsqlchecker')
+                      '*.multiple_sql', '*.parse_errors', '*.security_check', '*.tsqlchecker', '*.orig')
         
             ForEach ($file in $files)
             {
