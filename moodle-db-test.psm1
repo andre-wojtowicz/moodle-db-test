@@ -297,6 +297,13 @@ function Get-StudentOutput
             ForEach($sql_file in $cmp)
             {
                 $sql_file_full_path = Join-Path $student_dir.FullName $sql_file
+                
+                if ($(Get-Content $sql_file_full_path) -eq $null)
+                {
+                    Write-Host -ForegroundColor Yellow "$sql_file empty, skipping"
+                    continue
+                }
+                
                 $sql_file_full_path_no_ext = Join-Path $student_dir.FullName $([IO.Path]::GetFileNameWithoutExtension($sql_file))
             
                 # parse
