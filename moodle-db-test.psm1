@@ -94,9 +94,9 @@ function Get-ModelOutput
         
         ForEach ($sql in $sqls)
         {
-            & $cfg.TsqlCheckerPath $sql.FullName
+            $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath -WorkingDirectory $dir.FullName -ArgumentList $sql.Name -PassThru
             
-            if ($LastExitCode -ne 0)
+            if ($pt.ExitCode -ne 0)
             {
                 Write-Host -ForegroundColor Red "$(sql.Name) finished with errors:"
                 Write-Host -ForegroundColor Red "tsql-checker crashed"
@@ -342,10 +342,12 @@ function Get-StudentOutput
                 {
                     $utf8encoding = "utf8"
                 }
-                
-                & $cfg.TsqlCheckerPath $sql_file_full_path 2>&1 | Out-File $tsqlchecker_full_path -Encoding $utf8encoding
+
+                $pt = Start-Process -Wait -NoNewWindow -FilePath $cfg.TsqlCheckerPath `
+                                    -WorkingDirectory $student_dir.FullName -ArgumentList $sql_file `
+                                    -RedirectStandardError $tsqlchecker_full_path -PassThru
             
-                if ($LastExitCode -ne 0)
+                if ($pt.ExitCode -ne 0)
                 {
                     Write-Host -ForegroundColor Red "$sql_file crashed T-SQL checker"
                     return
