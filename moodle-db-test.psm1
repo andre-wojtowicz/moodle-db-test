@@ -385,13 +385,12 @@ function Get-StudentOutput
                 
                 $multiple_sql_full_path = "$($sql_file_full_path_no_ext).multiple_sql"
                 
-                $m1 = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).grammar") -Pattern "sql_clause " -AllMatches
+                $m1 = Get-Content "$($sql_file_full_path_no_ext).grammar" -Encoding UTF8 | Select-String -Pattern "\Asql_clause\Z"
+                $m1 = Get-Content "$($sql_file_full_path_no_ext).tokens"  -Encoding UTF8 | Select-String -Pattern "\ASELECT\Z"
                 
-                $m2 = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).tokens") -Pattern "SELECT" -AllMatches
-                
-                if ($m1.Matches.Count -gt 1 -and $m2.Matches.Count -gt 1)
+                if ($m1.Count -gt 1 -and $m2.Count -gt 1)
                 {
-                    "Multiple SQL clauses" | Out-File -Encoding utf8 $multiple_sql_full_path
+                    "Multiple SQL clauses" | Out-File -Encoding UTF8 $multiple_sql_full_path
                     Write-Host -ForegroundColor Yellow "$sql_file has multiple SQL clauses, skipping"
                     continue
                 }
@@ -406,11 +405,11 @@ function Get-StudentOutput
                 $fe_flag = $false
                 ForEach($patt in $sec_grammar)
                 {
-                    $sm = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).grammar") -Pattern "$patt " -AllMatches
+                    $sm = Get-Content "$($sql_file_full_path_no_ext).grammar" -Encoding UTF8 | Select-String -Pattern "\A$patt\Z"
                     
-                    if ($sm.Matches.Count -gt 0)
+                    if ($sm.Count -gt 0)
                     {
-                        "Security grammar element: $patt" | Out-File -Append -Encoding utf8 $security_check_full_path
+                        "Security grammar element: $patt" | Out-File -Append -Encoding UTF8 $security_check_full_path
                         Write-Host -ForegroundColor Red "$sql_file has security grammar element: $patt"
                         $fe_flag = $true
                     }
@@ -425,11 +424,11 @@ function Get-StudentOutput
                 $fe_flag = $false
                 ForEach($patt in $sec_tokens)
                 {
-                    $sm = Select-String -InputObject $(Get-Content "$($sql_file_full_path_no_ext).tokens") -Pattern "$patt " -AllMatches
+                    $sm = Get-Content "$($sql_file_full_path_no_ext).tokens" -Encoding UTF8 | Select-String -Pattern "\A$patt\Z"
                     
-                    if ($sm.Matches.Count -gt 0)
+                    if ($sm.Count -gt 0)
                     {
-                        "Security token: $patt" | Out-File -Append -Encoding utf8 $security_check_full_path
+                        "Security token: $patt" | Out-File -Append -Encoding UTF8 $security_check_full_path
                         Write-Host -ForegroundColor Red "$sql_file has security token: $patt"
                         $fe_flag = $true
                     }
@@ -651,9 +650,9 @@ function Get-Grades
                         $fe_flag = $false
                         ForEach ($word in $words_raw.Split(','))
                         {
-                            $sm = Select-String -InputObject $student_tokens -Pattern "$word" -AllMatches
+                            $sm = Get-Content $student_tokens -Encoding UTF8 | Select-String -Pattern "\A$word\Z"
                         
-                            if ($sm.Matches.Count -eq 0)
+                            if ($sm.Count -eq 0)
                             {
                                 $comment += "[0] missing SQL word: $word<br>"
                             
