@@ -597,14 +597,16 @@ function Get-Grades
                     
                     if ($test_cfg.ForbiddenClauses.ContainsKey($question_id))
                     {
-                        $student_grammar = Get-Content "$chk_root_name.grammar"
+                        $student_grammar = Get-Content "$chk_root_name.grammar" -Encoding UTF8
 
                         $clauses_raw = $test_cfg.ForbiddenClauses.$question_id
 
                         $fe_flag = $false
                         ForEach ($clause in $clauses_raw.Split(','))
                         {
-                            if ($student_grammar.Contains($clause))
+                            $cm = $student_grammar | Select-String -Pattern "\A$clause\Z"
+                        
+                            if ($cm.Count -gt 0)
                             {
                                 $comment += "[0] forbidden SQL clause: $clause<br>"
 
@@ -620,14 +622,16 @@ function Get-Grades
                     
                     if ($test_cfg.QueryStructure.ContainsKey($question_id))
                     {
-                        $student_grammar = Get-Content "$chk_root_name.grammar"
+                        $student_grammar = Get-Content "$chk_root_name.grammar" -Encoding UTF8
 
                         $structs_raw = $test_cfg.QueryStructure.$question_id
 
                         $fe_flag = $false
                         ForEach ($struct in $structs_raw.Split(','))
                         {
-                            if (-not $student_grammar.Contains($struct))
+                            $sm = $student_grammar | Select-String -Pattern "\A$struct\Z"
+                        
+                            if ($cm.Count -eq 0)
                             {
                                 $comment += "[0] missing SQL statement structure: $struct<br>"
                             
@@ -643,16 +647,16 @@ function Get-Grades
                     
                     if ($test_cfg.QueryWords.ContainsKey($question_id))
                     {
-                        $student_tokens = Get-Content "$chk_root_name.tokens"
+                        $student_tokens = Get-Content "$chk_root_name.tokens" -Encoding UTF8
 
                         $words_raw = $test_cfg.QueryWords.$question_id
 
                         $fe_flag = $false
                         ForEach ($word in $words_raw.Split(','))
                         {
-                            $sm = Get-Content $student_tokens -Encoding UTF8 | Select-String -Pattern "\A$word\Z"
+                            $wm = $student_tokens | Select-String -Pattern "\A$word\Z"
                         
-                            if ($sm.Count -eq 0)
+                            if ($wm.Count -eq 0)
                             {
                                 $comment += "[0] missing SQL word: $word<br>"
                             
