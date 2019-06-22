@@ -354,8 +354,11 @@ t-05.sql finished
 ```
 
 By default all directories in `tests` will be scanned. We can select
-particular tests by giving a pattern in
-`Get-ModelOutput -TestDirPattern [<Pattern>]`.
+particular tests by giving a pattern:
+
+```powershell
+Get-ModelOutput -TestDirPattern [<Pattern>]
+```
 
 Now each directory `tests\group-*` for each task `t-0*.sql` have extra files
 with extensions `.grammar`, `.tokens`, `.sql_output` and `.sql_output_ps`:
@@ -394,8 +397,11 @@ All directories OK
 If there are some errors (e.g. student put files in folder, changed names,
 zipped files, etc.), we must correct them by hand.
 
-You can filter tests and students by providing patterns in 
-`Test-StudentSanity -TestDirPattern [<Pattern>] -StudentDirPattern [<Pattern>]`.
+You can filter tests and students by providing patterns:
+
+```powershell
+Test-StudentSanity -TestDirPattern [<Pattern>] -StudentDirPattern [<Pattern>]
+```
 
 ### Get student output
 
@@ -449,8 +455,11 @@ For a given student's answer, for a given task we check whether `.sql` file:
 
 As in the previous step, several auxiliary files are created.
 
-We can filter tests and students by providing patterns in 
-`Test-StudentSanity -TestDirPattern [<Pattern>] -StudentDirPattern [<Pattern>]`.
+We can filter tests and students by providing patterns:
+
+```powershell
+Test-StudentSanity -TestDirPattern [<Pattern>] -StudentDirPattern [<Pattern>]
+```
 
 ### Get grades
 
@@ -503,7 +512,8 @@ Tasks are graded in the approach "all or nothing", i.e. a student for a given ta
 ```plaintext
 Name  Surname id     Instiution Department E-mail         Test (Points) Test (Feedback)
 ----  ------- --     ---------- ---------- ------         ------------- ---------------
-John  Doe     510810                       jd@invalid.com 0             t-01: [0] missing SQL statement structure: order_by_clause<b... Alice Smith   510833                       as@invalid.com 16            t-01: [2] OK<br>t-02: [2] OK<br>t-03: [3] OK<br>t-04: [4] OK...
+John  Doe     510810                       jd@invalid.com 0             t-01: [0] missing SQL statement structure: order_by_clause<b...
+Alice Smith   510833                       as@invalid.com 16            t-01: [2] OK<br>t-02: [2] OK<br>t-03: [3] OK<br>t-04: [4] OK...
 ```
 
 Finally, out  arget directory looks as follows (auxiliary files omitted):
