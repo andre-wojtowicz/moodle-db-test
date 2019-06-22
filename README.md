@@ -582,3 +582,10 @@ Remove-ModelOutput -TestDirPattern [<Pattern>]
 Remove-StudentOutput -TestDirPattern [<Pattern>] -StudentDirPattern [<Pattern>]
 Remove-Grades -TestDirPattern [<Pattern>]
 ```
+
+## Notes
+
+* Downloaded sumbissions from Moodle Assignment identify students only by name and surname, hence, matching results with CSV records is done also by name-surname lookup.
+* Used T-SQL grammar does not have `OUTER JOIN` grammar elements. It could be checked by searching tokens, but the module does not facilitate specification for tokens alternatives like `LEFT|RIGHT`.
+* Subqueries can be checked only in general. Searching for particualr correlated subqueries would be tricky, since one must look at the internal structures of tables.
+* The module was tested on Moodle 3.5.
