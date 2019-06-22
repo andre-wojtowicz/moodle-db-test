@@ -105,7 +105,7 @@ function Get-ModelOutput
             
             if ($pt.ExitCode -ne 0)
             {
-                Write-Host -ForegroundColor Red "$(sql.Name) finished with errors:"
+                Write-Host -ForegroundColor Red "$($sql.Name) finished with errors:"
                 Write-Host -ForegroundColor Red "tsql-checker crashed"
                 return
             }
@@ -148,7 +148,7 @@ function Get-ModelOutput
             { 
                 $_.Exception.Message | Out-File -Encoding utf8 "$($file_full_name_no_ext).sql_errors"
             
-                Write-Host -ForegroundColor Red "$(sql.Name) finished with errors:"
+                Write-Host -ForegroundColor Red "$($sql.Name) finished with errors:"
                 Write-Host -ForegroundColor Red $_.Exception.Message
                 return
             }
@@ -386,7 +386,7 @@ function Get-StudentOutput
                 $multiple_sql_full_path = "$($sql_file_full_path_no_ext).multiple_sql"
                 
                 $m1 = Get-Content "$($sql_file_full_path_no_ext).grammar" -Encoding UTF8 | Select-String -Pattern "\Asql_clause\Z"
-                $m1 = Get-Content "$($sql_file_full_path_no_ext).tokens"  -Encoding UTF8 | Select-String -Pattern "\ASELECT\Z"
+                $m2 = Get-Content "$($sql_file_full_path_no_ext).tokens"  -Encoding UTF8 | Select-String -Pattern "\ASELECT\Z"
                 
                 if ($m1.Count -gt 1 -and $m2.Count -gt 1)
                 {
@@ -631,7 +631,7 @@ function Get-Grades
                         {
                             $sm = $student_grammar | Select-String -Pattern "\A$struct\Z"
                         
-                            if ($cm.Count -eq 0)
+                            if ($sm.Count -eq 0)
                             {
                                 $comment += "[0] missing SQL statement structure: $struct<br>"
                             
