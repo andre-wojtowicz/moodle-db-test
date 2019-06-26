@@ -24,7 +24,7 @@ The solution works on both Windows and Linux systems.
 | System | CPU | Time |
 | --| -- | -- |
 | Windows 10 | Intel Xeon E3-1275 v5 3.6GHz | 29 min 40 sec |
-| Ubuntu 18.04 | AMD Ryzen 7 2700X 3.7GHz | 10 min 25 s |
+| Ubuntu 18.04 | AMD Ryzen 7 2700X 3.7GHz | 10 min 25 sec |
 
 Working on Linux seems to give final results 3-times faster than on Windows.
 
