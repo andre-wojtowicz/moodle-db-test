@@ -15,6 +15,19 @@ this process. Tasks are graded in the approach "all or nothing".
 
 The solution works on both Windows and Linux systems.
 
+## Speed test
+
+* 8 tests, each test with 7 tasks, 155 students
+* PowerShell 6.2.1, SQL Server 2016
+* `Measure-Command { Get-ModelOutput; Get-StudentOutput; Get-Grades }`
+
+| System | CPU | Time |
+| --| -- | -- |
+| Windows 10 | Intel Xeon E3-1275 v5 3.6GHz | 29 min 40 sec |
+| Ubuntu 18.04 | AMD Ryzen 7 2700X 3.7GHz | 10 min 25 s |
+
+Working on Linux seems to give final results 3-times faster than on Windows.
+
 ## Technical prerequisites
 
 * PowerShell with [SqlServer module](https://docs.microsoft.com/en-us/sql/powershell/download-sql-server-ps-module)
